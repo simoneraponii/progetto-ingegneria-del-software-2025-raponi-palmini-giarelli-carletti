@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="/Images">
+    <file>Images/logo.png</file>
+    <file>Images/logout.png</file>
+    <file>Images/agente.png</file>
+    <file>Images/id.png</file>
+    <file>Images/sb.png</file>
+    <file>Images/user.png</file>
+    <file>Images/nuovoV.png</file>
+    <file>Images/verbale.png</file>
+    <file>Images/calendar.png</file>
+    <file>Images/modifica.png</file>
+  </qresource>
+</RCC>
