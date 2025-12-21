@@ -1,0 +1,9 @@
+from enum import Enum
+
+
+class LoginResponse(Enum):
+    OK = "OK"
+    WRONG_PASSWORD = "WRONG_PASSWORD"
+    USER_NOT_FOUND = "USER_NOT_FOUND"
+    ACCOUNT_BLOCKED = "ACCOUNT_BLOCKED"
+    JUST_BLOCKED = "JUST_BLOCKED"

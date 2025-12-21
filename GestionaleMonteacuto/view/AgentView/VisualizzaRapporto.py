@@ -5,9 +5,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
 from PyQt6.QtCore import Qt, QSize
-from View.AgentView import resources_rc
+from view.AgentView import resources_rc
 import sys
-from View.AgentView.AggiungiRapporto import AggiungiRapportoWindow
+from view.AgentView.AggiungiRapporto import AggiungiRapportoWindow
 
 detenuto_info = {}
 lista_verbali = []

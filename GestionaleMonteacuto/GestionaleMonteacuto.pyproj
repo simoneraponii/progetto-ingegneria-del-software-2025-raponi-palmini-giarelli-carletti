@@ -21,14 +21,38 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="app\runner.py" />
+    <Compile Include="app\session.py" />
     <Compile Include="app\__init__.py" />
-    <Compile Include="controller\base.py" />
+    <Compile Include="controller\account_controller.py" />
+    <Compile Include="controller\detenuti_controller.py" />
+    <Compile Include="controller\login_controller.py" />
     <Compile Include="controller\__init__.py" />
-    <Compile Include="dao\base.py" />
+    <Compile Include="dao\account_dao.py" />
+    <Compile Include="dao\detenuto_dao.py" />
+    <Compile Include="dao\main_dao.py" />
     <Compile Include="dao\__init__.py" />
+    <Compile Include="db_config.py" />
     <Compile Include="GestionaleMonteacuto.py" />
-    <Compile Include="model\base.py" />
+    <Compile Include="model\detenuto\dato_anagrafico.py" />
+    <Compile Include="model\detenuto\detenuto.py" />
+    <Compile Include="model\detenuto\pena.py" />
+    <Compile Include="model\detenuto\ubicazione.py" />
+    <Compile Include="model\detenuto\__init__.py" />
+    <Compile Include="model\dto\detenuto_dto.py" />
+    <Compile Include="model\enum\login_response.py" />
+    <Compile Include="model\enum\ruolo.py" />
+    <Compile Include="model\enum\stato_verbale.py" />
+    <Compile Include="model\enum\__init__.py" />
+    <Compile Include="model\rapporti\rapporto_disciplinare.py" />
+    <Compile Include="model\rapporti\verbale.py" />
+    <Compile Include="model\rapporti\__init__.py" />
+    <Compile Include="model\user\agente.py" />
+    <Compile Include="model\user\comandante.py" />
+    <Compile Include="model\user\login_result.py" />
+    <Compile Include="model\user\ufficio_comando.py" />
+    <Compile Include="model\user\ufficio_matricole.py" />
+    <Compile Include="model\user\user.py" />
+    <Compile Include="model\user\__init__.py" />
     <Compile Include="model\__init__.py" />
     <Compile Include="view\base.py" />
     <Compile Include="view\__init__.py" />
@@ -38,6 +62,11 @@
     <Folder Include="controller\" />
     <Folder Include="dao\" />
     <Folder Include="model\" />
+    <Folder Include="model\enum\" />
+    <Folder Include="model\detenuto\" />
+    <Folder Include="model\dto\" />
+    <Folder Include="model\rapporti\" />
+    <Folder Include="model\user\" />
     <Folder Include="view\" />
   </ItemGroup>
   <ItemGroup>

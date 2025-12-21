@@ -1,0 +1,8 @@
+from enum import Enum
+
+
+class Ruolo(Enum):
+    AGENTE = "AGENTE"
+    UFFICIO_COMANDO = "UFFICIO_COMANDO"
+    COMANDANTE = "COMANDANTE"
+    UFFICIO_MATRICOLE = "UFFICIO_MATRICOLE"

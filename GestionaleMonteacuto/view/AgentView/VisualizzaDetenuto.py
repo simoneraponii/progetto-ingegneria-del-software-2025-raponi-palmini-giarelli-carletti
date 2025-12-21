@@ -5,9 +5,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
 from PyQt6.QtCore import Qt
-from View.AgentView import resources_rc
+from view.AgentView import resources_rc
 import sys
-from View.AgentView.VisualizzaRapporto import VisualizzaRapportoWindow
+from view.AgentView.VisualizzaRapporto import VisualizzaRapportoWindow
 
 class VisualizzaDetenutoWindow(QWidget):
     def __init__(self, nome, cogmome, matricola):

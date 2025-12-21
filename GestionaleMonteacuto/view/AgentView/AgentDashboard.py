@@ -5,15 +5,16 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
 from PyQt6.QtCore import Qt
-from View.AgentView import resources_rc
+from view.AgentView import resources_rc
 import sys
-from View.AgentView.VisualizzaDetenuto import VisualizzaDetenutoWindow
+from view.AgentView.VisualizzaDetenuto import VisualizzaDetenutoWindow
+from app.session import Session
 
 class AgentDashboardWindow(QWidget):
     
-    def __init__(self, agente_nome):
+    def __init__(self, session:Session):
         super().__init__()
-        self.agente_nome = agente_nome
+        self.agente_nome = f"{session.current_user.ruolo.value} {session.current_user.cognome}"
         self.setWindowTitle("Dashboard Agente")
         self.resize(1000, 600)
         self.detainees = self.get_detainees()
@@ -232,7 +233,7 @@ class AgentDashboardWindow(QWidget):
 
     def logout(self):
         self.close()
-        from View.LoginView.Login import LoginWindow
+        from view.LoginView.Login import LoginWindow
         self.login_window = LoginWindow()
         self.login_window.show()
             
