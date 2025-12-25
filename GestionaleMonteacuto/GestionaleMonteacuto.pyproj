@@ -55,6 +55,16 @@
     <Compile Include="model\user\__init__.py" />
     <Compile Include="model\__init__.py" />
     <Compile Include="view\base.py" />
+    <Compile Include="view\UfficiomatricoleView\AggiuntoDetenuto.py" />
+    <Compile Include="view\UfficiomatricoleView\Logout.py" />
+    <Compile Include="view\UfficiomatricoleView\ModificaDetenuto.py" />
+    <Compile Include="view\UfficiomatricoleView\ModificaUtente.py" />
+    <Compile Include="view\UfficiomatricoleView\NuovoDetenutoView.py" />
+    <Compile Include="view\UfficiomatricoleView\ProfiloDetenuto.py" />
+    <Compile Include="view\UfficiomatricoleView\ProfiloUtente.py" />
+    <Compile Include="view\UfficiomatricoleView\UfficioLogin.py" />
+    <Compile Include="view\UfficiomatricoleView\VisualizzaDetenuti.py" />
+    <Compile Include="view\UfficiomatricoleView\VisualizzaUtenti.py" />
     <Compile Include="view\__init__.py" />
   </ItemGroup>
   <ItemGroup>
@@ -68,10 +78,12 @@
     <Folder Include="model\rapporti\" />
     <Folder Include="model\user\" />
     <Folder Include="view\" />
+    <Folder Include="view\UfficiomatricoleView\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="README.md" />
+    <Content Include="view\UfficiomatricoleView\resources.qrc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

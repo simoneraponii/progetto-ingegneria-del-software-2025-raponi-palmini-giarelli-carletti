@@ -1,243 +1,322 @@
+﻿import sys
 from PyQt6.QtWidgets import (
-    QWidget, QApplication, QLabel, QLineEdit, QPushButton,
-    QVBoxLayout, QHBoxLayout, QStackedWidget, QGridLayout,
-    QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QFrame, QScrollArea, QSizePolicy
+    QWidget, QLabel, QLineEdit, QPushButton,
+    QVBoxLayout, QHBoxLayout, QFrame, QScrollArea,
+    QSizePolicy, QMessageBox, QApplication
 )
-from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
+from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction
 from PyQt6.QtCore import Qt
+
+# Import delle tue risorse e moduli
 from view.AgentView import resources_rc
-import sys
 from view.AgentView.VisualizzaDetenuto import VisualizzaDetenutoWindow
+from controller.detenuti_controller import DetenutiController
+from model.DTO.detenuto_dto import DetenutoDTO
 from app.session import Session
 
+
 class AgentDashboardWindow(QWidget):
-    
-    def __init__(self, session:Session):
-        super().__init__()
-        self.agente_nome = f"{session.current_user.ruolo.value} {session.current_user.cognome}"
+    def __init__(self, session: Session, parent=None):
+        super().__init__(parent)
+
+        self.session = session
+        self.detenuto_controller = DetenutiController()
+
+        # Nome utente formattato
+        self.agente_nome = f"{session.current_user.ruolo} {session.current_user.cognome}"
+
         self.setWindowTitle("Dashboard Agente")
-        self.resize(1000, 600)
-        self.detainees = self.get_detainees()
-        self.setStyleSheet("background-color: light gray;")
+        self.setGeometry(100, 100, 1200, 700) # Dimensioni simili al tuo esempio
+        
+        # 1. SFONDO NERO GENERALE
+        self.setStyleSheet("background-color: black;")
+
+        # Caricamento dati
+        self.detainees = self.load_detenuti()
+
         self.init_ui()
 
-    def get_detainees(self):
-        return [
-            ("Gabriel", "Popa", "D001"),
-            ("Luigi", "Verdi", "D002"),
-            ("Anna", "Bianchi", "D003"),
-            ("Giulia", "Neri", "D004"),
-            ("Marco", "Blu", "D005"),
-            ("Simone", "Raponi", "D006"),
-            ("Luca", "Viola", "D007"),
-            ("Edoardo", "Carletti", "D008"),
-            ("Franco", "Verdi", "D009"),
-            ("Walter", "Pagano", "D010")
-        ]
-    
+    # ==========================================
+    # LOGICA CARICAMENTO DATI
+    # ==========================================
+    def load_detenuti(self) -> list[DetenutoDTO]:
+        try:
+            detenuti = self.detenuto_controller.getDetenutiDto()
+            # Ordinamento alfabetico per Cognome, poi Nome
+            return sorted(
+                detenuti,
+                key=lambda d: (d.cognome.lower(), d.nome.lower(), d.matricola.lower())
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Impossibile caricare i detenuti:\n{e}")
+            return []
+
+    # ==========================================
+    # INTERFACCIA UTENTE
+    # ==========================================
     def init_ui(self):
-        # Prima parte
-        first_part = QFrame()
-        first_layout = QVBoxLayout(first_part)
-        first_layout.setContentsMargins(0, 0, 0, 0)
-        first_layout.setSpacing(10)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # Agente + username + benvenuto
-        top_section = QFrame()
-        top_section.setFixedHeight(50)
-        top_layout = QHBoxLayout(top_section)
-        top_layout.setContentsMargins(10, 5, 10, 5)
-        top_layout.setSpacing(7)
+        # --------------------------------------
+        # BARRA SUPERIORE (Grigio Chiaro)
+        # --------------------------------------
+        top_bar = QFrame()
+        top_bar.setFixedHeight(80)
+        top_bar.setStyleSheet("background-color: #e6e6e6;")
+        
+        top_layout = QHBoxLayout(top_bar)
+        top_layout.setContentsMargins(20, 10, 20, 10)
 
-        agent_icon = QLabel()
-        agent_icon.setPixmap(QPixmap(":/Images/Images/agente.png").scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio))
+        # SINISTRA: Icona Utente + Nome Agente
+        left_container = QWidget()
+        left_layout = QHBoxLayout(left_container)
+        left_layout.setContentsMargins(0,0,0,0)
+        
+        user_icon = QLabel()
+        user_icon.setPixmap(QPixmap(":/Images/Images/agente.png").scaled(35, 35, Qt.AspectRatioMode.KeepAspectRatio))
+        
+        name_label = QLabel(self.agente_nome)
+        name_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        name_label.setStyleSheet("color: #333;")
+        
+        left_layout.addWidget(user_icon)
+        left_layout.addWidget(name_label)
+        
+        # CENTRO: Titolo Benvenuto
+        title_label = QLabel("Dashboard Operativa")
+        title_label.setFont(QFont("Arial", 22, QFont.Weight.Bold))
+        title_label.setStyleSheet("color: #555;")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        agent_label = QLabel(self.agente_nome)
-        agent_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
-        agent_label.setStyleSheet("color: black;")
+        # DESTRA: Pulsante Logout
+        logout_btn = QPushButton(" Logout")
+        logout_btn.setIcon(QIcon(":/Images/Images/logout.png"))
+        logout_btn.setFixedSize(110, 40)
+        logout_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                border: 1px solid #bbb;
+                border-radius: 10px;
+                color: #333;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #ffdddd; border-color: red; }
+        """)
+        logout_btn.clicked.connect(self.logout)
 
-        welcome_label = QLabel("Benvenuto Agente!")
-        welcome_label.setFont(QFont("Arial", 20))
-        welcome_label.setStyleSheet("color: #555;")
+        # Assemblaggio Top Bar
+        top_layout.addWidget(left_container, stretch=1)
+        top_layout.addWidget(title_label, stretch=2)
+        top_layout.addWidget(logout_btn, stretch=1, alignment=Qt.AlignmentFlag.AlignRight)
 
-        top_layout.addWidget(agent_icon)
-        top_layout.addWidget(agent_label)
-        top_layout.addStretch()
-        top_layout.addWidget(welcome_label, alignment=Qt.AlignmentFlag.AlignCenter)
-        top_layout.addStretch() 
+        main_layout.addWidget(top_bar)
 
-        # Sezione sotto: search bar + lista detenuti
-        bottom_section = QFrame()
-        bottom_layout = QVBoxLayout(bottom_section)
-        bottom_layout.setContentsMargins(20, 10, 20, 10)
-        bottom_layout.setSpacing(10)
+        # --------------------------------------
+        # AREA CENTRALE (Grigio Scuro)
+        # --------------------------------------
+        central_frame = QFrame()
+        central_frame.setStyleSheet("background-color: #c1c1c1;")
+        
+        central_layout = QVBoxLayout(central_frame)
+        central_layout.setContentsMargins(30, 20, 30, 20)
+        central_layout.setSpacing(15)
 
-        # Search bar
+        # -- Intestazione Sezione --
+        header_row = QHBoxLayout()
+        
+        section_title = QLabel("Lista Detenuti Presenti")
+        section_title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
+        section_title.setStyleSheet("color: #444;")
+        
+        # Qui potresti mettere un bottone "Nuovo" se serve, altrimenti spacer
+        header_row.addStretch()
+        header_row.addWidget(section_title)
+        header_row.addStretch()
+        
+        central_layout.addLayout(header_row)
+
+        # -- Search Bar (Stile Bianco Arrotondato) --
+        search_frame = QFrame()
+        search_frame.setFixedHeight(60)
+        search_frame.setStyleSheet("""
+            QFrame {
+                background-color: white;
+                border-radius: 20px;
+            }
+        """)
+        search_layout = QHBoxLayout(search_frame)
+        search_layout.setContentsMargins(15, 5, 15, 5)
+
+        icon_lens = QLabel("🔍")
+        icon_lens.setFont(QFont("Arial", 16))
+        
         self.search_bar = QLineEdit()
-        self.search_bar.setPlaceholderText("Inserisci il nome del detenuto...")
-        self.search_bar.setFixedHeight(30)
+        self.search_bar.setPlaceholderText("Cerca per Cognome, Nome o Matricola...")
+        self.search_bar.setFont(QFont("Arial", 14))
+        self.search_bar.setStyleSheet("border: none; background: transparent;")
         self.search_bar.textChanged.connect(self.filter_list)
+        
+        search_layout.addWidget(icon_lens)
+        search_layout.addWidget(self.search_bar)
 
-        search_icon = QAction(QIcon(":/Images/Images/sb.png"), "sb", self.search_bar)
-        self.search_bar.addAction(search_icon, QLineEdit.ActionPosition.LeadingPosition)
+        central_layout.addWidget(search_frame)
 
-        # Scroll area con lista detenuti
+        # -- Scroll Area (Lista) --
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setStyleSheet("QScrollArea { border: none; background: transparent; }")
 
         self.scroll_content = QWidget()
+        self.scroll_content.setStyleSheet("background-color: #c1c1c1;") # Sfondo uguale al frame
         self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setSpacing(12)
+        self.scroll_layout.setSpacing(10)
+        self.scroll_layout.setContentsMargins(0, 10, 0, 10)
 
+        # Popolamento Iniziale
         self.populate_list(self.detainees)
 
         self.scroll_area.setWidget(self.scroll_content)
+        central_layout.addWidget(self.scroll_area)
 
-        bottom_layout.addWidget(self.search_bar)
-        bottom_layout.addWidget(self.scroll_area)
+        # -- Logo in basso a destra --
+        bottom_row = QHBoxLayout()
+        bottom_row.addStretch()
+        
+        logo_label = QLabel()
+        logo_pix = QPixmap(":/Images/Images/logo.png")
+        if not logo_pix.isNull():
+            logo_label.setPixmap(logo_pix.scaled(120, 120, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        
+        bottom_row.addWidget(logo_label)
+        central_layout.addLayout(bottom_row)
 
-        # Aggiungo sopra e sotto alla prima parte
-        first_layout.addWidget(top_section, stretch=1)    
-        first_layout.addWidget(bottom_section, stretch=4)
+        main_layout.addWidget(central_frame)
 
-        # Seconda parte
-        second_part = QFrame()
-        second_part.setFixedWidth(200)
-        right_layout = QVBoxLayout(second_part)
-
-        logout_button = QPushButton(" Logout")
-        logout_button.setIcon(QIcon(":/Images/Images/logout.png")) 
-        logout_button.setStyleSheet("padding: 5px; font-size: 14px; background color: white;")
-        logout_button.setFixedWidth(120)
-        logout_button.clicked.connect(self.logout)
-
-        right_layout.addWidget(logout_button, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop)
-        right_layout.addStretch()
-
-        crest = QLabel()
-        crest.setPixmap(QPixmap(":/Images/Images/logo.png").scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio))
-        right_layout.addStretch()
-        right_layout.addWidget(crest, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
-
-        # Fusione delle due parti
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(first_part, stretch=4)
-        main_layout.addWidget(second_part, stretch=1) 
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(2)
-
-        self.setLayout(main_layout)
-
-
-
-        # Metodo per riempire la lista con box grafici
-    def populate_list(self, data):
-        # Svuota layout
+    # ==========================================
+    # METODI DI POPOLAMENTO LISTA
+    # ==========================================
+    def populate_list(self, data_list: list[DetenutoDTO]):
+        # Pulisci lista
         for i in reversed(range(self.scroll_layout.count())):
-            widget = self.scroll_layout.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
+            w = self.scroll_layout.itemAt(i).widget()
+            if w:
+                w.deleteLater()
 
-        for nome, cognome, matricola in data:
-            row = QFrame()
-            row.setStyleSheet("background: white; border-radius: 15px;")
-            row.setFixedHeight(65)
-
-            grid = QGridLayout(row)
-            grid.setContentsMargins(20, 10, 20, 10)
-            grid.setHorizontalSpacing(40)
-            grid.setVerticalSpacing(0)
-
-            # Nome con icona
-            nome_layout = QHBoxLayout()
-            nome_layout.setContentsMargins(0, 0, 0, 0)
-            nome_layout.setSpacing(5)
-            nome_icon = QLabel()
-            nome_icon.setPixmap(QPixmap(":/Images/Images/user.png").scaled(20, 20, Qt.AspectRatioMode.KeepAspectRatio))
-            nome_label = QLabel(nome)
-            nome_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
-            
-            if nome == "Detenuto non trovato":
-                nome_label.setStyleSheet("color: red;")
-            else:
-                nome_label.setStyleSheet("color: black;")
-                
-            nome_layout.addWidget(nome_icon)
-            nome_layout.addWidget(nome_label)
-
-            # Cognome
-            cognome_label = QLabel(cognome)
-            cognome_label.setFont(QFont("Arial", 12))
-            cognome_label.setStyleSheet("color: black;")
-
-            # Matricola con icona
-            matricola_layout = QHBoxLayout()
-            matricola_layout.setContentsMargins(0, 0, 0, 0)
-            matricola_layout.setSpacing(5)
-            matricola_icon = QLabel()
-            matricola_icon.setPixmap(QPixmap(":/Images/Images/id.png").scaled(20, 20, Qt.AspectRatioMode.KeepAspectRatio))
-            matricola_label = QLabel(matricola)
-            matricola_label.setFont(QFont("Arial", 12))
-            matricola_label.setStyleSheet("color: black;")
-            matricola_layout.addWidget(matricola_icon)
-            matricola_layout.addWidget(matricola_label)
-
-            # Bottone Visualizza
-            view_button = QPushButton("Visualizza Detenuto")
-            view_button.setFixedSize(120, 35)
-            view_button.setStyleSheet("""
-                QPushButton {
-                    background-color: #666;
-                    color: white;
-                    border-radius: 8px;
-                    padding: 6px;
-                }
-                QPushButton:hover {
-                    background-color: #444;
-                }
-            """)
-            view_button.clicked.connect(lambda _, n=nome, c=cognome, m=matricola: self.apri_detenuto(n, c, m))
-
-            # Inserimento nella griglia
-            grid.addLayout(nome_layout,      0, 0)
-            grid.addWidget(cognome_label,    0, 1)
-            grid.addLayout(matricola_layout, 0, 2)
-            grid.addWidget(view_button,      0, 3, alignment=Qt.AlignmentFlag.AlignRight)
-
-            # Box occupa tutta la larghezza disponibile
-            row.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-
-            self.scroll_layout.addWidget(row)
-
-
-
-    # Metodo per filtro
-    def filter_list(self, notFound):
-        filtro = self.search_bar.text().strip().lower()
-        if not filtro:
-            self.populate_list(self.detainees)
+        if not data_list:
+            lbl = QLabel("Nessun detenuto trovato.")
+            lbl.setFont(QFont("Arial", 14))
+            lbl.setStyleSheet("color: #555;")
+            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.scroll_layout.addWidget(lbl)
             return
 
-        filtrati = []
-        for nome, cognome, matricola in self.detainees:
-            if (filtro in nome.lower() or 
-                filtro in cognome.lower() or 
-                filtro in matricola.lower()):
-                filtrati.append((nome, cognome, matricola))
-
-        if filtrati:
-            self.populate_list(filtrati)
-        else:
-            # Nessun risultato
-            self.populate_list([("Detenuto non trovato", " ", "D000")])
-
-    def logout(self):
-        self.close()
-        from view.LoginView.Login import LoginWindow
-        self.login_window = LoginWindow()
-        self.login_window.show()
+        # Genera righe
+        for det in data_list:
+            row_frame = QFrame()
+            row_frame.setFixedHeight(70)
+            row_frame.setStyleSheet("""
+                QFrame {
+                    background-color: white;
+                    border-radius: 15px;
+                }
+            """)
             
-    def apri_detenuto(self, nome, cognome, matricola):
-        self.detenuto_window = VisualizzaDetenutoWindow(nome, cognome, matricola)
+            row_layout = QHBoxLayout(row_frame)
+            row_layout.setContentsMargins(15, 10, 15, 10)
+            row_layout.setSpacing(15)
+
+            # Stile per i campi "finti" input (Read Only)
+            input_style = """
+                QLineEdit {
+                    background: #f7f7f7;
+                    border: 1px solid #bbb;
+                    border-radius: 10px;
+                    padding-left: 10px;
+                    color: black;
+                    font-size: 14px;
+                }
+            """
+
+            # 1. Cognome
+            edt_cognome = QLineEdit(det.cognome)
+            edt_cognome.setReadOnly(True)
+            edt_cognome.setPlaceholderText("Cognome")
+            edt_cognome.setStyleSheet(input_style)
+            
+            # 2. Nome
+            edt_nome = QLineEdit(det.nome)
+            edt_nome.setReadOnly(True)
+            edt_nome.setPlaceholderText("Nome")
+            edt_nome.setStyleSheet(input_style)
+
+            # 3. Matricola
+            edt_matr = QLineEdit(det.matricola)
+            edt_matr.setReadOnly(True)
+            edt_matr.setPlaceholderText("Matricola")
+            edt_matr.setStyleSheet(input_style)
+            edt_matr.setFixedWidth(120) # La matricola è più corta
+
+            # 4. Bottone Visualizza
+            btn_view = QPushButton("Visualizza")
+            btn_view.setFixedSize(100, 40)
+            btn_view.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn_view.setStyleSheet("""
+                QPushButton {
+                    background-color: #dedede;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    color: #333;
+                }
+                QPushButton:hover {
+                    background-color: #cccccc;
+                }
+            """)
+            # Connessione segnale
+            btn_view.clicked.connect(lambda checked, d=det: self.apri_detenuto(d))
+
+            # Aggiunta al layout riga
+            row_layout.addWidget(edt_cognome, stretch=2)
+            row_layout.addWidget(edt_nome, stretch=2)
+            row_layout.addWidget(edt_matr, stretch=1)
+            row_layout.addWidget(btn_view)
+
+            self.scroll_layout.addWidget(row_frame)
+
+        # Spacer finale per spingere tutto in alto
+        self.scroll_layout.addStretch()
+
+    # ==========================================
+    # LOGICA FUNZIONALE
+    # ==========================================
+    def filter_list(self):
+        testo = self.search_bar.text().lower().strip()
+        
+        filtrati = [
+            d for d in self.detainees
+            if testo in d.cognome.lower() 
+            or testo in d.nome.lower() 
+            or testo in d.matricola.lower()
+        ]
+        self.populate_list(filtrati)
+
+    def apri_detenuto(self, det: DetenutoDTO):
+        # Passo la matricola reale e i dati base
+        self.detenuto_window = VisualizzaDetenutoWindow(
+            det.nome, det.cognome, det.matricola
+        )
         self.detenuto_window.show()
 
+    def logout(self):
+        confirm = QMessageBox.question(
+            self, "Logout", "Sei sicuro di voler uscire?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if confirm == QMessageBox.StandardButton.Yes:
+            self.session.current_user = None
+            self.close()
+            from view.LoginView.login_view import LoginWindow
+            self.login_window = LoginWindow()
+            self.login_window.show()
