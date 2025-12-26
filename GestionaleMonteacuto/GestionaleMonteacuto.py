@@ -17,6 +17,7 @@ from view.UfficiomatricoleView.UfficioLogin import MainWindow
 
 def gestionale():
     app = QApplication(sys.argv)
+
     session = Session()
     login = LoginWindow()
     login.show()

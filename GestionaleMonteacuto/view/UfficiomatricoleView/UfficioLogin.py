@@ -99,9 +99,16 @@ class MainWindow(QWidget):
         utenti_btn.setFixedHeight(50)
         utenti_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         utenti_btn.setStyleSheet("""
-            QPushButton { background-color: black; color: white; border-radius: 25px; font-size: 16px; font-weight: bold; }
+            QPushButton { 
+                background-color: black; 
+                color: white; 
+                border-radius: 25px; 
+                font-size: 16px; 
+                font-weight: bold; 
+            }
             QPushButton:hover { background-color: #333; }
         """)
+        utenti_btn.clicked.connect(self.apri_visualizza_utenti)
 
         detenuti_btn = QPushButton("Gestisci Detenuti")
         detenuti_btn.setFixedHeight(50)
@@ -143,6 +150,22 @@ class MainWindow(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore nel caricamento della vista:\n{e}")
 
+    def apri_visualizza_utenti(self):
+        """Metodo per aprire la finestra di gestione utenti"""
+        try:
+            from view.UfficiomatricoleView.VisualizzaUtenti import VisualizzaUtenti
+            self.utenti_window = VisualizzaUtenti(self.session)
+            self.utenti_window.show()
+            self.hide()
+        except Exception as e:
+            self.show_message(
+                "Errore",
+                f"Errore nel caricamento della vista utenti:\n{e}",
+                QMessageBox.Icon.Critical
+            )
+
+
+
     def handle_logout(self):
         confirm = QMessageBox.question(self, "Logout", "Vuoi uscire?", 
                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -152,4 +175,34 @@ class MainWindow(QWidget):
             from view.LoginView.login_view import LoginWindow
             self.login = LoginWindow()
             self.login.show()
+
+    def show_message(self, title, text, icon=QMessageBox.Icon.Information, buttons=QMessageBox.StandardButton.Ok):
+        msg = QMessageBox(self)
+        msg.setWindowTitle(title)
+        msg.setText(text)
+        msg.setIcon(icon)
+        msg.setStandardButtons(buttons)
+
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                color: black;
+                font-size: 14px;
+            }
+            QLabel {
+                color: black;
+            }
+            QPushButton {
+                background-color: #e6e6e6;
+                border: 1px solid #aaa;
+                border-radius: 6px;
+                padding: 6px 14px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #d6d6d6;
+            }
+        """)
+
+        return msg.exec()
 

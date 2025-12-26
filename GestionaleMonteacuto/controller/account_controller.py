@@ -1,4 +1,5 @@
 from dao.account_dao import AccountDAO
+from model.DTO.user_dto import UserDTO
 from model.user.user import User
 import bcrypt
 
@@ -32,15 +33,22 @@ class AccountController:
         except Exception as e:
             raise Exception(f"Errore nella creazione dell'utente: {e}")
 
-    def update_utente(self, utente:User, nuovi_dati: dict) -> bool:
-        if "username" in nuovi_dati:
-            del nuovi_dati["username"]
-        if "password" in nuovi_dati:
+    def update_utente(self, username: str, nuovi_dati: dict) -> bool:
+        if "password" in nuovi_dati and nuovi_dati["password"]:
             nuovi_dati["password"] = bcrypt.hashpw(
-                nuovi_dati["password"].encode('utf-8'),
+                nuovi_dati["password"].encode("utf-8"),
                 bcrypt.gensalt()
-            ).decode('utf-8')
+            ).decode("utf-8")
+        else:
+            nuovi_dati.pop("password", None)  
+
         try:
-            return self.accountDao.update(utente, nuovi_dati)
+            return self.accountDao.update(username, nuovi_dati)
         except Exception as e:
-            raise Exception(f"Errore nell'aggiornamento dell'utente '{utente.username}': {e}")
+            raise Exception(f"Errore nell'aggiornamento dell'utente '{username}': {e}")
+
+    def get_utenti_dto(self) -> list[UserDTO]:
+        try:
+            return self.accountDao.get_utenti_dto()
+        except Exception as e:
+            raise Exception(f"Errore nel recupero degli utenti DTO: {e}")

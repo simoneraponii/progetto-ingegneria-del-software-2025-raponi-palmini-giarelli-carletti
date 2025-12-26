@@ -25,11 +25,11 @@ class LoginController:
             if bcrypt.checkpw(password_hashed, password_stored_hashed):
                 #se la password è corretta creo un oggetto loginResult impostando la session e con la risposta OK
                 #rimetto i tentativi rimasti a 3 nel db
-                self.accountDao.update(loggingUser, {"tentativi": 3})
+                self.accountDao.update(loggingUser.username, {"tentativi": 3})
                 #creo oggetto globale sessione e lo imposto con l'utente loggato
                 return LoginResult(utente=loggingUser, risposta=LoginResponse.OK)
             else:
-                self.accountDao.update(loggingUser, {"tentativi": loggingUser.tentativi - 1})
+                self.accountDao.update(loggingUser.username, {"tentativi": loggingUser.tentativi - 1})
                 if loggingUser.tentativi - 1 <= 0:
                     return LoginResult(utente=None, risposta=LoginResponse.JUST_BLOCKED)
                 else:

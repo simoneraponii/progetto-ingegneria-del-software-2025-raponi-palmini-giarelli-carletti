@@ -39,6 +39,7 @@
     <Compile Include="model\detenuto\ubicazione.py" />
     <Compile Include="model\detenuto\__init__.py" />
     <Compile Include="model\dto\detenuto_dto.py" />
+    <Compile Include="model\dto\user_dto.py" />
     <Compile Include="model\enum\login_response.py" />
     <Compile Include="model\enum\ruolo.py" />
     <Compile Include="model\enum\stato_verbale.py" />
@@ -55,6 +56,8 @@
     <Compile Include="model\user\__init__.py" />
     <Compile Include="model\__init__.py" />
     <Compile Include="view\base.py" />
+    <Compile Include="view\UfficiomatricoleView\EditUtenteView.py" />
+    <Compile Include="view\UfficiomatricoleView\NuovoUtenteView.py" />
     <Compile Include="view\UfficiomatricoleView\AggiuntoDetenuto.py" />
     <Compile Include="view\UfficiomatricoleView\Logout.py" />
     <Compile Include="view\UfficiomatricoleView\ModificaDetenuto.py" />
