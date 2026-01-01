@@ -304,9 +304,7 @@ class AgentDashboardWindow(QWidget):
 
     def apri_detenuto(self, det: DetenutoDTO):
         # Passo la matricola reale e i dati base
-        self.detenuto_window = VisualizzaDetenutoWindow(
-            det.nome, det.cognome, det.matricola
-        )
+        self.detenuto_window = VisualizzaDetenutoWindow(self.session, det.matricola)
         self.detenuto_window.show()
 
     def logout(self):

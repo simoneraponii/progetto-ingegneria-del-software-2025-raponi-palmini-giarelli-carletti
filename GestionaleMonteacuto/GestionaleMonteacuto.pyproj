@@ -26,10 +26,12 @@
     <Compile Include="controller\account_controller.py" />
     <Compile Include="controller\detenuti_controller.py" />
     <Compile Include="controller\login_controller.py" />
+    <Compile Include="controller\rapporto_controller.py" />
     <Compile Include="controller\__init__.py" />
     <Compile Include="dao\account_dao.py" />
     <Compile Include="dao\detenuto_dao.py" />
     <Compile Include="dao\main_dao.py" />
+    <Compile Include="dao\rapporto_dao.py" />
     <Compile Include="dao\__init__.py" />
     <Compile Include="db_config.py" />
     <Compile Include="GestionaleMonteacuto.py" />

@@ -1,3 +1,4 @@
+from controller.rapporto_controller import RapportoController
 from dao.detenuto_dao import DetenutoDAO
 from model.DTO.detenuto_dto import DetenutoDTO
 from model.detenuto import dato_anagrafico
@@ -10,6 +11,7 @@ from model.detenuto.ubicazione import Ubicazione
 class DetenutiController():
     def __init__(self):
         self.detenuto_dao = DetenutoDAO()
+        self.rapporto_controller = RapportoController()
         
     def get_detenuto(self, matricola: str) -> Detenuto:
         try:
@@ -55,3 +57,6 @@ class DetenutiController():
             return self.detenuto_dao.get_all_detenuti_dto()
         except Exception as e:
             raise Exception(f"Errore nel recupero dei detenuti: {e}")
+
+    def crea_verbale(self, matricola:str, titolo:str, usernameAgente:str):
+        self.rapporto_controller

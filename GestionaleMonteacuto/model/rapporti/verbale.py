@@ -1,9 +1,10 @@
-from enum.stato_verbale import StatoVerbale
-from model.rapporti.rapporto_disciplinare import RapportoDisciplinare
+from model.enum.stato_verbale import StatoVerbale
+ 
 
 class Verbale:
-    # codiceProtocollo string, statoVerbale
-    def __init__(self, codiceProtocollo: str, statoVerbale: StatoVerbale, listaRapporti: RapportoDisciplinare):
-        self.codiceProtocollo = codiceProtocollo
-        self.statoVerbale = statoVerbale
-        self.listaRapporti = listaRapporti
+    def __init__(self, codiceProtocollo: str, titolo: str, statoVerbale: str, fk_matricola: str):
+        self.codice_protocollo = codiceProtocollo
+        self.fk_matricola = fk_matricola  
+        self.titolo = titolo
+        self.stato_verbale = statoVerbale
+        self.lista_rapporti = []

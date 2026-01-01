@@ -21,7 +21,13 @@ class MainDAO:
             raise ConnectionError(f"Failed to connect to database: {e}")
 
     def disconnect(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.conn:
-            self.conn.close()
+        try:
+            if self.cursor:
+                self.cursor.close()
+            if self.conn:
+                self.conn.close()
+        except Exception:
+            pass 
+        finally:
+            self.cursor = None
+            self.conn = None

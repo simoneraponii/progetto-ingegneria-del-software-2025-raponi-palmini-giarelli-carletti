@@ -212,7 +212,7 @@ class RapportoDialog(QDialog):
         self.setStyleSheet("background-color: gray; color: white;")
 
         layout = QVBoxLayout(self)
-
+        
         titolo = QLabel(f"Agente: {rapporto['agente']} - Data: {rapporto['data']}")
         titolo.setFont(QFont("Arial", 14, QFont.Weight.Bold))
         titolo.setStyleSheet("color: white;")
