@@ -7,11 +7,18 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
 from PyQt6.QtCore import Qt
 
-# Import Risorse e Controller
+# Import Risorse
 from view.AgentView import resources_rc
-from view.AgentView.VisualizzaRapporto import VisualizzaRapportoWindow
-from controller.detenuti_controller import DetenutiController, RapportoController
-# from model.detenuto.detenuto import Detenuto  # Utile per l'IDE
+
+# Import Controller
+from controller.detenuti_controller import DetenutiController
+from controller.rapporto_controller import RapportoController
+
+# IMPORT ENUM (Fondamentale per la coerenza)
+from model.enum.stato_verbale import StatoVerbale
+
+# Import Finestra Dettaglio
+from view.AgentView.visualizza_verbale import VisualizzaVerbaleWindow
 
 class VisualizzaDetenutoWindow(QWidget):
     def __init__(self, session, matricola: str):
@@ -20,6 +27,7 @@ class VisualizzaDetenutoWindow(QWidget):
         # 1. DATI E SESSIONE
         self.session = session
         self.matricola_target = matricola
+        
         self.controller = DetenutiController()
         self.rapporto_controller = RapportoController()
         
@@ -48,7 +56,6 @@ class VisualizzaDetenutoWindow(QWidget):
                 return
 
             self.lista_verbali = self.rapporto_controller.get_verbali_detenuto(self.matricola_target)
-            
 
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore caricamento dati: {e}")
@@ -100,16 +107,14 @@ class VisualizzaDetenutoWindow(QWidget):
         # Preparazione Dati per il Loop
         if self.detenuto:
             d = self.detenuto
-            # Uso getattr per evitare crash se un campo è None o manca
+            # Uso getattr per sicurezza
             nome = getattr(d.dati_anagrafici, 'nome', '-')
             cognome = getattr(d.dati_anagrafici, 'cognome', '-')
             cf = getattr(d.dati_anagrafici, 'codice_fiscale', '-')
             
-            # Gestione Pena
             fine_pena = str(getattr(d.pena, 'data_fine', getattr(d.pena, 'dataFinePena', '-')))
             reato = getattr(d.pena, 'reato', getattr(d.pena, 'descrizione', '-'))
             
-            # Gestione Ubicazione
             ala = getattr(d.ubicazione, 'sezione', '-')
             cella = getattr(d.ubicazione, 'numero_cella', getattr(d.ubicazione, 'camera', '-'))
             locazione_str = f"Ala {ala} - Cella {cella}"
@@ -131,7 +136,6 @@ class VisualizzaDetenutoWindow(QWidget):
             l.setFont(QFont("Arial", 11)) 
             l.setWordWrap(True) 
             l.setAlignment(Qt.AlignmentFlag.AlignCenter) 
-            # Aggiungo un piccolo bordo sotto per separare visivamente
             l.setStyleSheet("border-bottom: 1px solid #555; padding-bottom: 5px;")
             info_layout.addWidget(l) 
             info_layout.addSpacing(5)
@@ -150,11 +154,9 @@ class VisualizzaDetenutoWindow(QWidget):
         # ==========================================
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        # Rendo trasparente lo scroll area per vedere lo sfondo grigio
         self.scroll_area.setStyleSheet("background: transparent; border: none;")
 
         self.scroll_content = QWidget()
-        # Container interno
         self.scroll_layout = QVBoxLayout(self.scroll_content)
         self.scroll_layout.setSpacing(10)
         self.scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -200,9 +202,7 @@ class VisualizzaDetenutoWindow(QWidget):
         right_widget.setLayout(right_panel)
         right_widget.setFixedWidth(200)
 
-        # ==========================================
         # FUSIONE LAYOUT
-        # ==========================================
         main_layout.addWidget(left_widget)
         main_layout.addWidget(self.scroll_area)
         main_layout.addWidget(right_widget)
@@ -210,20 +210,22 @@ class VisualizzaDetenutoWindow(QWidget):
     # ==========================================
     # LOGICA
     # ==========================================
-    def apri_rapporto(self, verbale):
-        self.apri = VisualizzaRapportoWindow(verbale)
+    def apri_verbale(self, verbale):
+        """Apre il dettaglio del verbale (lista note + tasti conferma)"""
+        # Passiamo la sessione corrente e l'oggetto verbale selezionato
+        self.apri = VisualizzaVerbaleWindow(self.session, verbale)
         self.apri.show()
 
     def crea_nuovo_verbale(self):
         titolo, ok = QInputDialog.getText(self, "Nuovo Verbale", "Inserisci il titolo del verbale:")
         try:
-            if self.rapporto_controller.crea_verbale(titolo, self.detenuto.matricola):
-                self.aggiorna_centrale()
-                QMessageBox.information(self, "Confermato", "Verbale registrato nel sistema.")
+            if ok and titolo:
+                if self.rapporto_controller.crea_verbale(titolo, self.detenuto.matricola):
+                    self.aggiorna_centrale()
+                    QMessageBox.information(self, "Confermato", "Verbale registrato nel sistema.")
         except Exception as e:
             QMessageBox.critical(self, "Errore", str(e))
         
-
     def aggiorna_centrale(self):
         # 1. Pulizia widget precedenti
         for i in reversed(range(self.scroll_layout.count())): 
@@ -292,7 +294,7 @@ class VisualizzaDetenutoWindow(QWidget):
             # Bottone Visualizza (Apre la lista dei rapporti interni)
             btn_details = QPushButton("Apri Fascicolo Verbale")
             btn_details.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn_details.setIcon(QIcon(":/Images/Images/search.png")) # Se hai un'icona lente
+            btn_details.setIcon(QIcon(":/Images/Images/search.png")) 
             btn_details.setStyleSheet("""
                 QPushButton {
                     background-color: #0056b3; 
@@ -304,34 +306,38 @@ class VisualizzaDetenutoWindow(QWidget):
                 QPushButton:hover { background-color: #004494; }
             """)
             # Qui colleghiamo l'apertura della nuova finestra
-            btn_details.clicked.connect(lambda _, v=verbale: self.apri_dettaglio_verbale(v))
+            btn_details.clicked.connect(lambda _, v=verbale: self.apri_verbale(v))
 
-            # --- LOGICA STATI ---
-            raw_stato = str(verbale.stato_verbale) # created, confirmed_ufficio_comando, etc.
+            # --- LOGICA STATI (Normalizzazione a Enum) ---
+            stato_enum = verbale.stato_verbale
+            # Se arriva come stringa, convertiamo
+            if isinstance(stato_enum, str):
+                try: stato_enum = StatoVerbale[stato_enum]
+                except: stato_enum = None
             
-            if raw_stato == "CREATED":
+            # Default values (Unknown)
+            stato_text = "STATO SCONOSCIUTO"
+            bg_color = "#E2E3E5"
+            text_color = "#383D41"
+            border_color = "#D6D8DB"
+
+            if stato_enum == StatoVerbale.CREATED:
                 stato_text = "BOZZA"
                 bg_color = "#FFF3CD" # Giallo chiaro
-                text_color = "#856404" # Giallo scuro
+                text_color = "#856404"
                 border_color = "#FFEEBA"
             
-            elif raw_stato == "CONFIRMED_UFFICIO_COMANDO":
+            elif stato_enum == StatoVerbale.CONFIRMED_UFFICIO_COMANDO:
                 stato_text = "VISTO UFF. COMANDO"
                 bg_color = "#D1ECF1" # Azzurro chiaro
-                text_color = "#0C5460" # Blu petrolio
+                text_color = "#0C5460"
                 border_color = "#B8DAFF"
                 
-            elif raw_stato == "CONFIRMED_COMANDANTE":
+            elif stato_enum == StatoVerbale.CONFIRMED_COMANDANTE:
                 stato_text = "APPROVATO (CHIUSO)"
                 bg_color = "#D4EDDA" # Verde chiaro
-                text_color = "#155724" # Verde scuro
+                text_color = "#155724"
                 border_color = "#C3E6CB"
-            else:
-                # Fallback
-                stato_text = raw_stato
-                bg_color = "#E2E3E5"
-                text_color = "#383D41"
-                border_color = "#D6D8DB"
 
             lbl_stato = QLabel(stato_text)
             lbl_stato.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -353,12 +359,3 @@ class VisualizzaDetenutoWindow(QWidget):
             box_layout.addLayout(row_bottom)
             
             self.scroll_layout.addWidget(box)
-
-    # def apri_dettaglio_verbale(self, verbale):
-    #     """Apre la finestra con la lista dei rapporti associati a questo verbale"""
-    #     # Importiamo qui per evitare circular imports se le classi sono in file diversi
-    #     from view.AgentView.VisualizzaVerbaleWindow import VisualizzaVerbaleWindow
-        
-    #     # Passiamo sessione e il codice del protocollo
-    #     self.dettaglio_window = VisualizzaVerbaleWindow(self.session, verbale.codice_protocollo)
-    #     self.dettaglio_window.show()

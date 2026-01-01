@@ -129,12 +129,13 @@ class LoginWindow(QWidget):
         if result.risposta == LoginResponse.OK:
             self.session.login(result.utente)
 
-            if result.utente.ruolo == 'AGENTE':
-                self.dashboard = AgentDashboardWindow(self.session)
-                self.dashboard.show()
-                self.hide()
+            
             if result.utente.ruolo == 'UFFICIO_MATRICOLE':
                 self.dashboard = MainWindow(self.session)
+                self.dashboard.show()
+                self.hide()
+            else:
+                self.dashboard = AgentDashboardWindow(self.session)
                 self.dashboard.show()
                 self.hide()
 

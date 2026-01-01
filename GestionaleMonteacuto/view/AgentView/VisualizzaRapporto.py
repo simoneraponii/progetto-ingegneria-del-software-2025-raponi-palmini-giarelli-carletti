@@ -5,21 +5,23 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
 from PyQt6.QtCore import Qt, QSize
+from model.rapporti.verbale import Verbale
 from view.AgentView import resources_rc
 import sys
-from view.AgentView.AggiungiRapporto import AggiungiRapportoWindow
+from app.session import Session
 
 detenuto_info = {}
 lista_verbali = []
 rapporti = []
 
 class VisualizzaRapportoWindow(QWidget):
-    def __init__(self, verbale):
+    def __init__(self,session:Session, verbale:Verbale):
         super().__init__()
         self.verbale = verbale
         # Ogni verbale ha la sua lista indipendente
         self.rapporti_disciplinari = verbale.setdefault("rapporti", [])
         self.init_ui()
+        self.session = session
 
     def init_ui(self):
         self.main_layout = QHBoxLayout(self)
@@ -184,8 +186,9 @@ class VisualizzaRapportoWindow(QWidget):
     # Metodi
     def apri_aggiungi_rapporto(self):
         self.hide()
+        from view.AgentView.nuovo_rapporto import NuovoRapportoDialog
         # Aggiungi rapporto SOLO al verbale corrente
-        self.aggiungi_window = AggiungiRapportoWindow(self)
+        self.aggiungi_window = NuovoRapportoDialog(self.session, self.verbale.codiceProtocollo)
         self.aggiungi_window.show()
 
     def apri_rapporto(self, rapporto):

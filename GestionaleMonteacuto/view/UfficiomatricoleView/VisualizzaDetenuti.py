@@ -9,6 +9,7 @@ from PyQt6.QtGui import QFont, QPixmap, QIcon
 from PyQt6.QtCore import Qt
 
 # --- IMPORT ---
+# Assicurati che questi import puntino ai tuoi file corretti
 from view.AgentView import resources_rc
 from controller.detenuti_controller import DetenutiController
 from model.DTO.detenuto_dto import DetenutoDTO
@@ -16,9 +17,10 @@ from app.session import Session
 
 class VisualizzaDetenuti(QWidget):
     def __init__(self, session: Session, parent=None):
-        super().__init__(parent)
-
+        super().__init__() # Finestra indipendente
+        
         self.session = session
+        self.parent_window = parent # Riferimento alla finestra precedente
         self.detenuto_controller = DetenutiController()
 
         # Nome utente formattato
@@ -27,7 +29,7 @@ class VisualizzaDetenuti(QWidget):
         self.setWindowTitle("Dashboard Ufficio Matricole")
         self.setGeometry(100, 100, 1200, 700)
         
-        # SFONDO GENERALE
+        # SFONDO GENERALE NERO (Questo causava il problema al popup)
         self.setStyleSheet("background-color: black;")
 
         # Caricamento dati iniziali
@@ -41,12 +43,18 @@ class VisualizzaDetenuti(QWidget):
     def load_detenuti(self) -> list[DetenutoDTO]:
         try:
             detenuti = self.detenuto_controller.getDetenutiDto()
+            # Ordina per Cognome, poi Nome
             return sorted(
                 detenuti,
                 key=lambda d: (d.cognome.lower(), d.nome.lower(), d.matricola.lower())
             )
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Impossibile caricare i detenuti:\n{e}")
+            # Anche qui usiamo uno stile forzato per evitare illeggibilità
+            err = QMessageBox(self)
+            err.setWindowTitle("Errore")
+            err.setText(f"Impossibile caricare i detenuti:\n{e}")
+            err.setStyleSheet("background-color: white; color: black;")
+            err.exec()
             return []
 
     # ==========================================
@@ -186,10 +194,13 @@ class VisualizzaDetenuti(QWidget):
         
         icon_lens = QLabel("🔍")
         icon_lens.setFont(QFont("Arial", 16))
+        # Importante: text color black altrimenti non si vede nella barra bianca
+        icon_lens.setStyleSheet("color: black;") 
+        
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Cerca per Cognome, Nome o Matricola...")
         self.search_bar.setFont(QFont("Arial", 14))
-        self.search_bar.setStyleSheet("border: none; background: transparent;")
+        self.search_bar.setStyleSheet("border: none; background: transparent; color: black;")
         self.search_bar.textChanged.connect(self.filter_list)
         
         search_layout.addWidget(icon_lens)
@@ -234,6 +245,7 @@ class VisualizzaDetenuti(QWidget):
         if not data_list:
             lbl = QLabel("Nessun detenuto trovato.")
             lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lbl.setStyleSheet("color: #333; font-size: 14px; padding-top: 20px;")
             self.scroll_layout.addWidget(lbl)
             return
 
@@ -290,14 +302,33 @@ class VisualizzaDetenuti(QWidget):
         self.populate_list(filtrati)
 
     def vai_indietro(self):
-        from view.UfficiomatricoleView.UfficioLogin import MainWindow
-        self.back_win = MainWindow(self.session)
-        self.back_win.show()
+        """
+        Torna alla finestra precedente.
+        Se esiste un genitore salvato, lo mostra. Altrimenti crea una nuova istanza della Dashboard.
+        """
+        if self.parent_window:
+            self.parent_window.show()
+        else:
+            # Fallback: istanzia di nuovo la dashboard principale
+            try:
+                # Sostituisci con il percorso corretto del tuo file principale
+                from view.UfficiomatricoleView.UfficioLogin import MainWindow 
+                self.home_window = MainWindow(self.session)
+                self.home_window.show()
+            except ImportError as e:
+                # Stile messaggio errore leggibile
+                err = QMessageBox(self)
+                err.setText(f"Errore Navigazione: {e}")
+                err.setStyleSheet("background-color: white; color: black;")
+                err.exec()
+                return
+
         self.close()
 
     def nuovo_detenuto(self):
         from view.UfficiomatricoleView.NuovoDetenutoView import NuovoDetenutoView
-        self.form_nuovo = NuovoDetenutoView()
+        # Passiamo self come parent
+        self.form_nuovo = NuovoDetenutoView(session=self.session) 
         self.form_nuovo.show()
 
     def modifica_detenuto(self, det: DetenutoDTO):
@@ -306,7 +337,45 @@ class VisualizzaDetenuti(QWidget):
         self.edit_form.show()
 
     def logout(self):
-        if QMessageBox.question(self, "Logout", "Uscire dal sistema?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
+        """
+        Gestisce il logout con un popup stilizzato per essere leggibile
+        anche con lo sfondo nero dell'app.
+        """
+        # Creiamo un box manuale per forzare lo stile
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Conferma Logout")
+        msg_box.setText("Sei sicuro di voler uscire dal sistema?")
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        
+        # Pulsanti Standard
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+        
+        # --- STILE CSS PER LEGGIBILITÀ SU SFONDO NERO ---
+        msg_box.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                border: 2px solid #555;
+            }
+            QLabel {
+                color: black;
+                font-size: 14px;
+                background-color: transparent;
+            }
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 5px;
+                padding: 5px 15px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
+
+        # Eseguiamo il box e controlliamo il risultato
+        if msg_box.exec() == QMessageBox.StandardButton.Yes:
             self.session.current_user = None
             from view.LoginView.login_view import LoginWindow
             self.login_win = LoginWindow()
@@ -318,4 +387,7 @@ class VisualizzaDetenuti(QWidget):
             self.detainees = self.load_detenuti()
             self.populate_list(self.detainees)
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Impossibile aggiornare la lista:\n{e}")
+            err = QMessageBox(self)
+            err.setText(f"Impossibile aggiornare la lista:\n{e}")
+            err.setStyleSheet("background-color: white; color: black;")
+            err.exec()
