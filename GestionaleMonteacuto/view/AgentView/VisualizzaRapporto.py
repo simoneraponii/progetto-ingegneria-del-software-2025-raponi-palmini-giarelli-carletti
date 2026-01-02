@@ -187,7 +187,6 @@ class VisualizzaRapportoWindow(QWidget):
     def apri_aggiungi_rapporto(self):
         self.hide()
         from view.AgentView.nuovo_rapporto import NuovoRapportoDialog
-        # Aggiungi rapporto SOLO al verbale corrente
         self.aggiungi_window = NuovoRapportoDialog(self.session, self.verbale.codiceProtocollo)
         self.aggiungi_window.show()
 
@@ -202,7 +201,6 @@ class VisualizzaRapportoWindow(QWidget):
     def modifica_rapporto(self, rapporto):
         dlg = ModificaRapportoDialog(rapporto, self)
         dlg.exec()
-        # Dopo la modifica aggiorno la UI
         self.build_left_panel()
 
 

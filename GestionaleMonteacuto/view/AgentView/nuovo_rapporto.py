@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from app.session import Session
-# Import corretto del controller per le note disciplinari
 from controller.rapporto_controller import RapportoController
 
 class NuovoRapportoDialog(QDialog):
@@ -20,7 +19,7 @@ class NuovoRapportoDialog(QDialog):
         
         # 1. Imposta Titolo Finestra e Bottone in base alla modalità
         mode_str = "Modifica" if self.rapporto_esistente else "Nuova"
-        self.setWindowTitle(f"{mode_str} Nota - Prot. {self.codice_protocollo}")
+        self.setWindowTitle(f"{mode_str} Rapporto Disciplinare - Prot. {self.codice_protocollo}")
         
         self.init_ui()
         
@@ -28,7 +27,7 @@ class NuovoRapportoDialog(QDialog):
         if self.rapporto_esistente:
             self.txt_oggetto.setText(self.rapporto_esistente.oggetto)
             self.txt_descrizione.setText(self.rapporto_esistente.descrizione)
-            self.btn_save.setText("Aggiorna Nota")
+            self.btn_save.setText("Aggiorna Rapporto Disciplinare")
 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -69,9 +68,8 @@ class NuovoRapportoDialog(QDialog):
         btn_cancel.setStyleSheet("background-color: #e0e0e0; color: #333;")
         btn_cancel.clicked.connect(self.reject)
         
-        self.btn_save = QPushButton("Salva Nota")
+        self.btn_save = QPushButton("Salva Rapporto Disciplinare")
         self.btn_save.setStyleSheet("background-color: #007bff; color: white;")
-        # COLLEGA IL CLICK AL METODO DI SALVATAGGIO
         self.btn_save.clicked.connect(self.tenta_salvataggio) 
         
         btn_layout.addStretch()
@@ -95,16 +93,16 @@ class NuovoRapportoDialog(QDialog):
                 
                 # --- LOGICA UPDATE ---
                 success = self.controller.modifica_rapporto(self.rapporto_esistente.id, oggetto,descrizione)
-                msg_success = "Nota aggiornata correttamente."
+                msg_success = "Rapporto aggiornato correttamente."
             else:
                 # --- LOGICA INSERT ---
                 success = self.controller.aggiungi_rapporto(oggetto, descrizione, self.session.current_user.username, self.codice_protocollo)
-                msg_success = "Nota aggiunta con successo."
+                msg_success = "Rapporto aggiunto con successo."
             
             # 3. Esito
             if success:
                 QMessageBox.information(self, "Successo", msg_success)
-                self.accept() # Chiude il dialog tornando "Accepted"
+                self.accept() 
             else:
                 QMessageBox.warning(self, "Errore", "Operazione fallita sul database.")
                 

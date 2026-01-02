@@ -57,6 +57,10 @@
     <Compile Include="model\user\user.py" />
     <Compile Include="model\user\__init__.py" />
     <Compile Include="model\__init__.py" />
+    <Compile Include="test\test_controller\test_detenuti_controller.py" />
+    <Compile Include="test\test_controller\test_login_controller.py" />
+    <Compile Include="test\test_controller\__init__.py" />
+    <Compile Include="test\__init__.py" />
     <Compile Include="view\AgentView\AgentDashboard.py" />
     <Compile Include="view\AgentView\nuovo_rapporto.py" />
     <Compile Include="view\AgentView\resources_rc.py" />
@@ -92,6 +96,8 @@
     <Folder Include="model\dto\" />
     <Folder Include="model\rapporti\" />
     <Folder Include="model\user\" />
+    <Folder Include="test\" />
+    <Folder Include="test\test_controller\" />
     <Folder Include="view\" />
     <Folder Include="view\AgentView\" />
     <Folder Include="view\AgentView\Images\" />

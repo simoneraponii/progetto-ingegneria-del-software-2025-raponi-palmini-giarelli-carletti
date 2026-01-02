@@ -302,21 +302,15 @@ class VisualizzaDetenuti(QWidget):
         self.populate_list(filtrati)
 
     def vai_indietro(self):
-        """
-        Torna alla finestra precedente.
-        Se esiste un genitore salvato, lo mostra. Altrimenti crea una nuova istanza della Dashboard.
-        """
+
         if self.parent_window:
             self.parent_window.show()
         else:
-            # Fallback: istanzia di nuovo la dashboard principale
             try:
-                # Sostituisci con il percorso corretto del tuo file principale
                 from view.UfficiomatricoleView.UfficioLogin import MainWindow 
                 self.home_window = MainWindow(self.session)
                 self.home_window.show()
             except ImportError as e:
-                # Stile messaggio errore leggibile
                 err = QMessageBox(self)
                 err.setText(f"Errore Navigazione: {e}")
                 err.setStyleSheet("background-color: white; color: black;")
@@ -328,7 +322,7 @@ class VisualizzaDetenuti(QWidget):
     def nuovo_detenuto(self):
         from view.UfficiomatricoleView.NuovoDetenutoView import NuovoDetenutoView
         # Passiamo self come parent
-        self.form_nuovo = NuovoDetenutoView(session=self.session) 
+        self.form_nuovo = NuovoDetenutoView(self.session) 
         self.form_nuovo.show()
 
     def modifica_detenuto(self, det: DetenutoDTO):
@@ -337,21 +331,13 @@ class VisualizzaDetenuti(QWidget):
         self.edit_form.show()
 
     def logout(self):
-        """
-        Gestisce il logout con un popup stilizzato per essere leggibile
-        anche con lo sfondo nero dell'app.
-        """
-        # Creiamo un box manuale per forzare lo stile
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("Conferma Logout")
         msg_box.setText("Sei sicuro di voler uscire dal sistema?")
         msg_box.setIcon(QMessageBox.Icon.Question)
-        
-        # Pulsanti Standard
         msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-        
-        # --- STILE CSS PER LEGGIBILITÀ SU SFONDO NERO ---
+
         msg_box.setStyleSheet("""
             QMessageBox {
                 background-color: white;
@@ -373,8 +359,6 @@ class VisualizzaDetenuti(QWidget):
                 background-color: #2980b9;
             }
         """)
-
-        # Eseguiamo il box e controlliamo il risultato
         if msg_box.exec() == QMessageBox.StandardButton.Yes:
             self.session.current_user = None
             from view.LoginView.login_view import LoginWindow

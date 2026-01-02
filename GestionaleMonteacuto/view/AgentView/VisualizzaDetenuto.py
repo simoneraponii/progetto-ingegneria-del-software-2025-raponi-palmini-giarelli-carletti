@@ -7,17 +7,12 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction, QPalette, QColor
 from PyQt6.QtCore import Qt
 
-# Import Risorse
 from view.AgentView import resources_rc
 
-# Import Controller
+
 from controller.detenuti_controller import DetenutiController
 from controller.rapporto_controller import RapportoController
-
-# IMPORT ENUM (Fondamentale per la coerenza)
 from model.enum.stato_verbale import StatoVerbale
-
-# Import Finestra Dettaglio
 from view.AgentView.visualizza_verbale import VisualizzaVerbaleWindow
 
 class VisualizzaDetenutoWindow(QWidget):
@@ -46,7 +41,6 @@ class VisualizzaDetenutoWindow(QWidget):
         self.init_ui()
 
     def load_data(self):
-        """Carica l'oggetto Detenuto completo dal Controller"""
         try:
             self.detenuto = self.controller.get_detenuto(self.matricola_target)
             
@@ -328,7 +322,7 @@ class VisualizzaDetenutoWindow(QWidget):
                 border_color = "#FFEEBA"
             
             elif stato_enum == StatoVerbale.CONFIRMED_UFFICIO_COMANDO:
-                stato_text = "VISTO UFF. COMANDO"
+                stato_text = "CONFERMATO UFF. COMANDO"
                 bg_color = "#D1ECF1" # Azzurro chiaro
                 text_color = "#0C5460"
                 border_color = "#B8DAFF"

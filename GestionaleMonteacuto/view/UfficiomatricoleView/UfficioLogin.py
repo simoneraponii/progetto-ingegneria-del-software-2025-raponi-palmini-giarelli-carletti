@@ -167,14 +167,44 @@ class MainWindow(QWidget):
 
 
     def handle_logout(self):
-        confirm = QMessageBox.question(self, "Logout", "Vuoi uscire?", 
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        if confirm == QMessageBox.StandardButton.Yes:
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Logout")
+        msg_box.setText("Sei sicuro di voler uscire?")
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+        msg_box.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                border: 1px solid #ccc;
+            }
+            QLabel {
+                color: #333;
+                font-size: 14px;
+                background-color: transparent;
+            }
+            QPushButton {
+                background-color: #f0f0f0;
+                color: black;
+                border: 1px solid #bbb;
+                border-radius: 5px;
+                padding: 6px 15px;
+                min-width: 60px;
+            }
+            QPushButton:hover {
+                background-color: #e6e6e6;
+                border-color: #888;
+            }
+        """)
+        if msg_box.exec() == QMessageBox.StandardButton.Yes:
             self.session.current_user = None
             self.close()
-            from view.LoginView.login_view import LoginWindow
-            self.login = LoginWindow()
-            self.login.show()
+            try:
+                from view.LoginView.login_view import LoginWindow
+                self.login = LoginWindow()
+                self.login.show()
+            except ImportError as e:
+                print(f"Errore importazione Login: {e}")
 
     def show_message(self, title, text, icon=QMessageBox.Icon.Information, buttons=QMessageBox.StandardButton.Ok):
         msg = QMessageBox(self)

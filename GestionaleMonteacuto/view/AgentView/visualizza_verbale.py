@@ -123,14 +123,10 @@ class VisualizzaVerbaleWindow(QWidget):
 
     def check_permessi_conferma(self):
         ruolo = self._get_current_role_enum()
-        
-        # Recupero Stato sicuro
         stato = self.verbale.stato_verbale
         if isinstance(stato, str):
             try: stato = StatoVerbale[stato]
             except: stato = None
-
-        # MODIFICA 2: Nascondi pulsante "Aggiungi Rapporto" se verbale chiuso
         if stato == StatoVerbale.CONFIRMED_COMANDANTE:
             self.btn_add.setVisible(False)
         else:
@@ -183,7 +179,7 @@ class VisualizzaVerbaleWindow(QWidget):
     def action_conferma_verbale(self):
         confirm = QMessageBox.question(
             self, "Conferma Operazione", 
-            "Confermi di voler procedere con l'avanzamento di stato del verbale?",
+            "Confermi di voler procedere con la conferma del verbale?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         
@@ -243,8 +239,6 @@ class VisualizzaVerbaleWindow(QWidget):
         ruolo = self._get_current_role_enum()
         is_comandante = (ruolo == Ruolo.COMANDANTE)
         
-        # Controllo se è chiuso per il tasto modifica (solo visivo per lista)
-        # Il bottone "Aggiungi" è gestito in check_permessi_conferma
         
         is_closed = False
         stato = self.verbale.stato_verbale
@@ -277,7 +271,6 @@ class VisualizzaVerbaleWindow(QWidget):
             row_top.addWidget(lbl_obj)
             row_top.addStretch()
 
-            # Tasto Modifica solo se ENUM == COMANDANTE E NON CHIUSO
             if is_comandante and not is_closed:
                 btn_edit = QPushButton("Modifica")
                 btn_edit.setFixedSize(80, 25)

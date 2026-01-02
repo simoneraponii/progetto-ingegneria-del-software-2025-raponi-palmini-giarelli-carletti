@@ -6,14 +6,15 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt, QDate
 
+from app.session import Session
 from controller.detenuti_controller import DetenutiController
 
 class NuovoDetenutoView(QWidget):
-    def __init__(self):
+    def __init__(self,session:Session):
         super().__init__()
         self.setWindowTitle("Nuovo Detenuto")
         self.detenuti_controller = DetenutiController()
-
+        self.session = session
         self.resize(900, 700)
         self.setMinimumSize(700, 500)
         # --- STILE GENERALE ---

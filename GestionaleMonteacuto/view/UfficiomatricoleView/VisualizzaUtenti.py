@@ -332,11 +332,16 @@ class VisualizzaUtenti(QWidget):
         self.populate_list(filtrati)
 
     def vai_indietro(self):
-        # Sostituisci con la tua classe di menu principale/admin
-        # from view.AdminView.AdminDashboard import AdminDashboard
-        # self.back_win = AdminDashboard(self.session)
-        # self.back_win.show()
         self.close()
+        try:
+            from view.UfficiomatricoleView.UfficioLogin import MainWindow
+            
+            self.back_win = MainWindow(self.session)
+            self.back_win.show()
+        except ImportError as e:
+            print(f"Errore nel caricare la finestra precedente: {e}")
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(self, "Errore", f"Impossibile tornare indietro: {e}")
 
     def nuovo_utente(self):
         try:
@@ -353,12 +358,45 @@ class VisualizzaUtenti(QWidget):
         self.view_win.show()
 
     def logout(self):
-        if QMessageBox.question(self, "Logout", "Uscire dal sistema?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Logout")
+        msg_box.setText("Sei sicuro di voler uscire dal sistema?")
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+        msg_box.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                border: 1px solid #ccc;
+            }
+            QLabel {
+                color: #333;
+                font-size: 14px;
+                background-color: transparent;
+            }
+            QPushButton {
+                background-color: #f0f0f0;
+                color: black;
+                border: 1px solid #bbb;
+                border-radius: 5px;
+                padding: 6px 15px;
+                min-width: 60px;
+            }
+            QPushButton:hover {
+                background-color: #e6e6e6;
+                border-color: #888;
+            }
+        """)
+
+        if msg_box.exec() == QMessageBox.StandardButton.Yes:
             self.session.current_user = None
-            from view.LoginView.login_view import LoginWindow
-            self.login_win = LoginWindow()
-            self.login_win.show()
             self.close()
+            try:
+                from view.LoginView.login_view import LoginWindow
+                self.login_win = LoginWindow()
+                self.login_win.show()
+            except ImportError:
+                print("Errore: Impossibile importare LoginWindow")
 
     def aggiorna_lista(self):
         try:

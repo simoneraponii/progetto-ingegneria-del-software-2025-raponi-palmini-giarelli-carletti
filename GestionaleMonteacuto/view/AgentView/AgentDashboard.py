@@ -6,8 +6,6 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QAction
 from PyQt6.QtCore import Qt
-
-# Import delle tue risorse e moduli
 from view.AgentView import resources_rc
 from view.AgentView.VisualizzaDetenuto import VisualizzaDetenutoWindow
 from controller.detenuti_controller import DetenutiController
@@ -130,14 +128,14 @@ class AgentDashboardWindow(QWidget):
         section_title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
         section_title.setStyleSheet("color: #444;")
         
-        # Qui potresti mettere un bottone "Nuovo" se serve, altrimenti spacer
+
         header_row.addStretch()
         header_row.addWidget(section_title)
         header_row.addStretch()
         
         central_layout.addLayout(header_row)
 
-        # -- Search Bar (Stile Bianco Arrotondato) --
+
         search_frame = QFrame()
         search_frame.setFixedHeight(60)
         search_frame.setStyleSheet("""
@@ -227,7 +225,6 @@ class AgentDashboardWindow(QWidget):
             row_layout.setContentsMargins(15, 10, 15, 10)
             row_layout.setSpacing(15)
 
-            # Stile per i campi "finti" input (Read Only)
             input_style = """
                 QLineEdit {
                     background: #f7f7f7;
@@ -303,16 +300,48 @@ class AgentDashboardWindow(QWidget):
         self.populate_list(filtrati)
 
     def apri_detenuto(self, det: DetenutoDTO):
-        # Passo la matricola reale e i dati base
         self.detenuto_window = VisualizzaDetenutoWindow(self.session, det.matricola)
         self.detenuto_window.show()
 
     def logout(self):
-        confirm = QMessageBox.question(
-            self, "Logout", "Sei sicuro di voler uscire?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-        if confirm == QMessageBox.StandardButton.Yes:
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Logout")
+        msg_box.setText("Sei sicuro di voler uscire?")
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No) 
+        msg_box.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                border: 1px solid #ccc;
+            }
+            QLabel {
+                color: black;
+                font-family: Arial;
+                font-size: 14px;
+                background-color: transparent; 
+            }
+            QPushButton {
+                background-color: #f0f0f0;
+                color: black;
+                border: 1px solid #bbb;
+                border-radius: 5px;
+                padding: 5px 15px;
+                font-size: 13px;
+                min-width: 60px;
+            }
+            QPushButton:hover {
+                background-color: #e6e6e6;
+                border-color: #999;
+            }
+            QPushButton:pressed {
+                background-color: #d4d4d4;
+            }
+        """)
+
+        reply = msg_box.exec()
+
+        if reply == QMessageBox.StandardButton.Yes:
             self.session.current_user = None
             self.close()
             from view.LoginView.login_view import LoginWindow
