@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>GestionaleMonteacuto</Name>
     <RootNamespace>GestionaleMonteacuto</RootNamespace>
+    <TestFramework>Pytest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,8 +58,8 @@
     <Compile Include="model\user\user.py" />
     <Compile Include="model\user\__init__.py" />
     <Compile Include="model\__init__.py" />
-    <Compile Include="test\test_controller\test_detenuti_controller.py" />
     <Compile Include="test\test_controller\test_login_controller.py" />
+    <Compile Include="test\test_controller\test_rapporto_controller.py" />
     <Compile Include="test\test_controller\__init__.py" />
     <Compile Include="test\__init__.py" />
     <Compile Include="view\AgentView\AgentDashboard.py" />
@@ -75,11 +76,8 @@
     <Compile Include="view\UfficiomatricoleView\EditUtenteView.py" />
     <Compile Include="view\UfficiomatricoleView\NuovoUtenteView.py" />
     <Compile Include="view\UfficiomatricoleView\AggiuntoDetenuto.py" />
-    <Compile Include="view\UfficiomatricoleView\Logout.py" />
     <Compile Include="view\UfficiomatricoleView\ModificaDetenuto.py" />
-    <Compile Include="view\UfficiomatricoleView\ModificaUtente.py" />
     <Compile Include="view\UfficiomatricoleView\NuovoDetenutoView.py" />
-    <Compile Include="view\UfficiomatricoleView\ProfiloDetenuto.py" />
     <Compile Include="view\UfficiomatricoleView\ProfiloUtente.py" />
     <Compile Include="view\UfficiomatricoleView\UfficioLogin.py" />
     <Compile Include="view\UfficiomatricoleView\VisualizzaDetenuti.py" />

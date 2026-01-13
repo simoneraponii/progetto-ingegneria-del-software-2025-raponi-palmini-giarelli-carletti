@@ -25,7 +25,6 @@ class DetenutoDAO(MainDAO):
         except Exception as e:
             raise Exception(f"Errore durante il controllo di esistenza della pena: {e}")
         
-        
 
     def check_esistenza_dato_anagrafico(self, codice_fiscale: str) -> bool:
         sql = "SELECT 1 FROM DatoAnagrafico WHERE codiceFiscale = ?"

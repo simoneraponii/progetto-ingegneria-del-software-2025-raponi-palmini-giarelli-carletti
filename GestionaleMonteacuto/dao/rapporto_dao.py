@@ -105,43 +105,43 @@ class RapportoDAO(MainDAO):
             self.disconnect()
     
     def aggiungi_rapporto(self, oggetto: str, descrizione: str, fk_username: str, fk_codiceProtocollo: str) -> bool:
-        
-        # 1. Calcoliamo la data corrente come stringa (YYYY-MM-DD)
-        current_date = datetime.now().strftime("%Y-%m-%d")
-        
-        # 2. Prepariamo la query SQL
+        """
+        Inserisce un rapporto. Passiamo un oggetto datetime al driver ODBC:
+        il driver gestisce la conversione corretta verso il tipo datetime di SQL Server.
+        """
+        current_date = datetime.now()  # passiamo un oggetto datetime, non una stringa
+
         query = """
             INSERT INTO RapportoDisciplinare 
             (oggetto, descrizione, data, fk_username, fk_codiceProtocollo) 
             VALUES (?, ?, ?, ?, ?)
         """
-        
+
         try:
             self.connect()
-            
-            # Eseguiamo l'inserimento
+
+            # Passiamo current_date (datetime) al binding: il driver ODBC si occupa della conversione
             self.cursor.execute(query, (
-                oggetto, 
-                descrizione, 
-                current_date, 
-                fk_username, 
+                oggetto,
+                descrizione,
+                current_date,
+                fk_username,
                 fk_codiceProtocollo
             ))
-            
-            # Confermiamo le modifiche
+
             self.conn.commit()
             return True
-            
+
         except Exception as e:
-            # In caso di errore, stampiamo il messaggio e annulliamo le modifiche pendenti
             print(f"Errore inserimento rapporto: {e}")
             if self.conn:
                 self.conn.rollback()
             return False
-            
+
         finally:
-            # Chiudiamo sempre la connessione
             self.disconnect()
+   
+
 
     def update_rapporto(self, id_rapporto: int, oggetto: str, descrizione: str) -> bool:
         query = """
